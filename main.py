@@ -8,10 +8,12 @@ from sklearn.metrics import accuracy_score, confusion_matrix, classification_rep
 
 def load_data():
     print("loading data")
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    DATASET_DIR = os.path.join(BASE_DIR, "dataset")
     try:
-        true_df = pd.read_csv('dataset/True.csv')
-        fake_df = pd.read_csv('dataset/Fake.csv')
 
+        true_df = pd.read_csv(os.path.join(DATASET_DIR, "True.csv"))
+        fake_df = pd.read_csv(os.path.join(DATASET_DIR, "Fake.csv"))
         true_df['label'] = 1
         fake_df['label'] = 0
 
@@ -26,8 +28,8 @@ def load_data():
 def train_model(df):
     print('splitij data1')
     #we will use the 'text' column for classsificatioon
-    X = df.['text']
-    y = df.['label']
+    X = df['text']
+    y = df['label']
 
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
