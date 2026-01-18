@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="glass-card">
+        <h1>How It Works</h1>
+        <p>Our Misinformation Detector discriminates between real and fake news using a machine learning pipeline
+            trained on a dataset of over 40,000 articles.</p>
+
+        <h2>The Dataset</h2>
+        <p>The model was trained on the <strong>ISOT Fake News Dataset</strong>, which contains both reliable news
+            articles obtained from Reuters and unreliable fabricated news. This diverse collection allows the model to
+            learn linguistic patterns associated with credible reporting versus deceptive writing.</p>
+
+        <h2>Preprocessing</h2>
+        <p>Before analysis, the input text undergoes a rigorous preprocessing pipeline to prepare it for the machine
+            learning model. First, we perform tokenization and cleaning to break down the text into linguistic units. We
+            then remove "stopwords"—common words like "the", "is", and "at" which carry little semantic meaning but
+            appear frequently. Finally, we convert the text into numerical vectors using <strong>TF-IDF (Term
+                Frequency-Inverse Document Frequency)</strong>. This technique weighs terms based on their importance,
+            normalizing against how often they appear across the entire dataset to highlight unique, rigorous keywords.
+        </p>
+
+        <h2>The Algorithm</h2>
+        <p>We use a <strong>Passive Aggressive Classifier</strong>, an online learning algorithm that is particularly
+            effective for large-scale text classification tasks. The algorithm derives its name from its update
+            strategy: it remains "passive" when it correctly classifies an input, making no changes to its internal
+            model. However, it turns "aggressive" when a misclassification occurs, significantly adjusting its weight
+            vector to correct the error. This approach allows the model to learn continuously and robustly, adapting
+            quickly to new patterns of misinformation.</p>
+
+        <h2>Accuracy</h2>
+        <p>During extensive testing and validation, this model demonstrated robust performance, achieving an accuracy of
+            approximately <strong>99%</strong> on the held-out test set. This high level of precision makes it a
+            reliable tool for initial credibility screening of news content.</p>
+    </div>
+</div>
+{% endblock %}

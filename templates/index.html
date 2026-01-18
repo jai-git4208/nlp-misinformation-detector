@@ -1,1 +1,259 @@
-frontend to communicate with app.py
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Misinformation Detector</title>
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --background-color: #f8fafc;
+            --card-background: #ffffff;
+            --text-color: #1e293b;
+            --success-color: #22c55e;
+            --warning-color: #eab308;
+            --danger-color: #ef4444;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            background: var(--card-background);
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+            font-size: 2.5rem;
+        }
+
+        p.subtitle {
+            text-align: center;
+            color: #64748b;
+            margin-bottom: 40px;
+        }
+
+        .input-group {
+            margin-bottom: 30px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 150px;
+            padding: 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-family: inherit;
+            resize: vertical;
+            transition: border-color 0.2s;
+            box-sizing: border-box;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        button {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background-color: #1d4ed8;
+        }
+
+        button:disabled {
+            background-color: #94a3b8;
+            cursor: not-allowed;
+        }
+
+        #result {
+            margin-top: 30px;
+            padding: 20px;
+            border-radius: 12px;
+            display: none;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        #result.low-risk {
+            background-color: #dcfce7;
+            border: 1px solid var(--success-color);
+            color: #14532d;
+        }
+
+        #result.moderate-risk {
+            background-color: #fef9c3;
+            border: 1px solid var(--warning-color);
+            color: #713f12;
+        }
+
+        #result.high-risk {
+            background-color: #fee2e2;
+            border: 1px solid var(--danger-color);
+            color: #7f1d1d;
+        }
+
+        .score-bar {
+            height: 8px;
+            background-color: rgba(0,0,0,0.1);
+            border-radius: 4px;
+            margin-top: 15px;
+            overflow: hidden;
+        }
+
+        .score-fill {
+            height: 100%;
+            transition: width 1s ease-out;
+            border-radius: 4px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .loading {
+            text-align: center;
+            display: none;
+            margin-top: 20px;
+            color: #64748b;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Misinformation Detector</h1>
+        <p class="subtitle">Enter a news headline or article to check its credibility.</p>
+
+        <div class="input-group">
+            <textarea id="newsInput" placeholder="Paste the text here to analyze..."></textarea>
+        </div>
+
+        <button onclick="analyzeText()" id="analyzeBtn">Analyze Credibility</button>
+
+        <div class="loading" id="loading">Analyzing...</div>
+
+        <div id="result">
+            <h2 id="assessment"></h2>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <span>Credibility Score:</span>
+                <span id="scoreValue" style="font-weight: bold; font-size: 1.2rem;"></span>
+            </div>
+            <div class="score-bar">
+                <div class="score-fill" id="scoreFill"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function analyzeText() {
+            const input = document.getElementById('newsInput').value;
+            if (!input.trim()) {
+                alert('Please enter some text to analyze.');
+                return;
+            }
+
+            const btn = document.getElementById('analyzeBtn');
+            const loading = document.getElementById('loading');
+            const resultDiv = document.getElementById('result');
+            
+            btn.disabled = true;
+            loading.style.display = 'block';
+            resultDiv.style.display = 'none';
+
+            try {
+                const response = await fetch('/analyze', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ text: input }),
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    displayResult(data);
+                } else {
+                    alert(data.error || 'An error occurred during analysis.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to connect to the server.');
+            } finally {
+                btn.disabled = false;
+                loading.style.display = 'none';
+            }
+        }
+
+        function displayResult(data) {
+            const resultDiv = document.getElementById('result');
+            const assessmentEl = document.getElementById('assessment');
+            const scoreValEl = document.getElementById('scoreValue');
+            const scoreFillEl = document.getElementById('scoreFill');
+
+            resultDiv.className = ''; // Reset classes
+            resultDiv.style.display = 'block';
+
+            assessmentEl.textContent = data.assessment;
+            scoreValEl.textContent = data.credibility_score + '%';
+
+            // Set color and style based on score
+            // Note: The API returns High Risk (low credibility) for low scores
+            // But let's check the logic:
+            // >= 70: Low Risk (High Credibility) -> Green
+            // >= 40: Moderate Risk -> Yellow
+            // < 40: High Risk -> Red
+            
+            // Wait, looking at app.py:
+            // >= 70: Low Risk (High Credibility)
+            // >= 40: Moderate Risk
+            // else: High Risk
+            
+            let color;
+            if (data.credibility_score >= 70) {
+                resultDiv.classList.add('low-risk');
+                color = 'var(--success-color)';
+            } else if (data.credibility_score >= 40) {
+                resultDiv.classList.add('moderate-risk');
+                color = 'var(--warning-color)';
+            } else {
+                resultDiv.classList.add('high-risk');
+                color = 'var(--danger-color)';
+            }
+
+            scoreFillEl.style.width = data.credibility_score + '%';
+            scoreFillEl.style.backgroundColor = color;
+        }
+    </script>
+</body>
+</html>

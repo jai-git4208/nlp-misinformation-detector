@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="glass-card">
+        <h1>API Reference</h1>
+        <p>Integrate our misinformation detection into your own applications using our simple REST API.</p>
+
+        <h2>Endpoints</h2>
+
+        <h3>POST /analyze</h3>
+        <p>Analyzes the credibility of the provided text.</p>
+
+        <h4>Request Body</h4>
+        <pre><code class="language-json">{
+  "text": "Your article text or headline here..."
+}</code></pre>
+
+        <h4>Response</h4>
+        <pre><code class="language-json">{
+  "credibility_score": 95.5,
+  "assessment": "Low Risk (High Credibility)"
+}</code></pre>
+
+        <h4>Example Usage (cURL)</h4>
+        <pre><code class="language-bash">curl -X POST \
+  -H "Content-Type: application/json" \
+  -d '{"text": "Breaking news: Water is wet."}' \
+  http://127.0.0.1:5000/analyze</code></pre>
+
+        <h3>GET /status</h3>
+        <p>Checks the health of the API service.</p>
+        <pre><code class="language-bash">curl http://127.0.0.1:5000/status</code></pre>
+    </div>
+</div>
+{% endblock %}
