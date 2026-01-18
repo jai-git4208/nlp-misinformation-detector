@@ -29,6 +29,7 @@ def load_data():
 import joblib
 
 def save_model(model, vectorizer, model_path="model/model.pkl", vectorizer_path="model/vectorizer.pkl"):
+    os.makedirs(os.path.dirname(model_path), exist_ok=True)
     print(f"Saving model to {model_path} and vectorizer to {vectorizer_path}")
     joblib.dump(model, model_path)
     joblib.dump(vectorizer, vectorizer_path)
@@ -42,6 +43,7 @@ def load_saved_model(model_path="model/model.pkl", vectorizer_path="model/vector
         return model, vectorizer
     else:
         print("model not found xd")
+        return None, None
 
 
 

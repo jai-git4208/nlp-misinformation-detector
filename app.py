@@ -1,5 +1,5 @@
 
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 import numpy as np
 
 
@@ -8,6 +8,14 @@ from main import load_data, train_model, load_saved_model, save_model
 
 
 app = Flask(__name__)
+
+
+@app.route("/", methods=["GET"])
+def index():
+    return render_template("index.html")
+
+
+
 
 
 print("Initializing model...")
@@ -21,7 +29,7 @@ if model is None or vectorizer is None:
     if df is None:
         raise RuntimeError("Dataset not found. Cannot start API.")
 
-model, vectorizer = train_model(df, save=True)
+    model, vectorizer = train_model(df, save=True)
 print("Model loaded successfully.")
 
 
@@ -75,4 +83,5 @@ def analyze():
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run()
+
