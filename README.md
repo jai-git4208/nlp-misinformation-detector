@@ -53,5 +53,22 @@ curl -X POST -H "Content-Type: application/json" \
 ## Dataset
 The project expects `True.csv` and `Fake.csv` in the `dataset/` directory. Each file should contain a `text` column.
 
+## Automated Testing
+
+Automated tests were implemented using `pytest` and Flask’s test client.
+
+The tests validate:
+- API health endpoint
+- Model inference for credible and fake news
+- Risk classification logic
+- Invalid input handling
+
+Advanced runtime logging captures:
+- Request flow
+- Model decision scores
+- Credibility normalization
+- Risk assessment
+
+Test reports are generated in JUnit XML format (`pytest_report.xml`) for reproducibility.
 
 ### With love by JAI and KAMAL
