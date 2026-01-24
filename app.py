@@ -5,6 +5,12 @@ import numpy as np
 
 from main import load_data, train_model, load_saved_model, save_model
 
+import logging
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s | %(levelname)s | %(message)s"
+)
 
 
 app = Flask(__name__)
@@ -62,24 +68,30 @@ def status():
 
 @app.route("/analyze", methods=["POST"])
 def analyze():
+    logging.info("Analyze endpoint called")
+
     data = request.get_json()
 
     if not data or "text" not in data:
+        logging.warning("Invalid request: missing text field")
         return jsonify({"error": "Missing 'text' field"}), 400
 
     text = data["text"]
 
     if not isinstance(text, str) or len(text.strip()) == 0:
+        logging.warning("Invalid request: empty or non-string text")
         return jsonify({"error": "Invalid text input"}), 400
 
+    logging.info(f"Input text length: {len(text)}")
 
     text_vec = vectorizer.transform([text])
 
     decision_score = model.decision_function(text_vec)[0]
     credibility_score = compute_credibility(decision_score)
-    
 
-   
+    logging.info(f"Decision score: {decision_score}")
+    logging.info(f"Credibility score: {credibility_score}")
+
     if credibility_score >= 70:
         risk = "Low Risk (High Credibility)"
     elif credibility_score >= 40:
@@ -87,12 +99,12 @@ def analyze():
     else:
         risk = "High Risk (Low Credibility)"
 
+    logging.info(f"Risk assessment: {risk}")
 
     return jsonify({
         "credibility_score": credibility_score,
         "assessment": risk
     })
-
 
 if __name__ == "__main__":
     app.run()
